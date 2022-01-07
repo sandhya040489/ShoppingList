@@ -7,13 +7,11 @@ import (
 	"time"
 
 	"github.com/spf13/viper"
-
+	"shoppinglist/cache"
 	"shoppinglist/config"
-	"shoppinglist/model"
 	"shoppinglist/controller"
-	
+	"shoppinglist/model"
 	"shoppinglist/routes"
-
 
 	"github.com/gin-contrib/logger"
 	"github.com/gin-gonic/gin"
@@ -45,7 +43,7 @@ func initDB() {
 	}
 
 	dbConnStr := fmt.Sprintf(
-		"%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local", //url
+		"%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local",
 		dbConfig.username,
 		dbConfig.password,
 		dbConfig.ip,
@@ -87,7 +85,7 @@ func initDB() {
 func main() {
 	//Loading configuration
 	config.LoadConfig()
-
+	cache.InitCache()
 	//initializing database
 	initDB()
 
@@ -101,18 +99,24 @@ func main() {
 	// Only log the warning severity or above.
 	log.SetLevel(log.Level(viper.GetInt("logging.level")))
 	log.Debug("this is a test log")
+
+	//Initialize controller
 	controller.InitializeController(db)
+
 	router := gin.New()
 
 	// Add the logger middleware
 	router.Use(logger.SetLogger())
 
-	router.GET("/ping", func(c *gin.Context) {
-		log.Info("Received ping message")
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
+	router.GET(
+		"/ping",
+		func(c *gin.Context) {
+			log.Info("Received ping message")
+			c.JSON(http.StatusOK, gin.H{
+				"message": "pong",
+			})
+		},
+	)
 
 	routes.InitRoutes(router)
 	port := viper.GetInt("webserver.port")
