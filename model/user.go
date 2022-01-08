@@ -3,7 +3,7 @@ package model
 import (
 	"gorm.io/gorm"
 )
-
+//User this gives the details of the user
 type User struct {
 	gorm.Model
 	UserID       string         `gorm:"type:varchar(30);not null"`
